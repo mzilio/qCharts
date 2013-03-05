@@ -4,6 +4,6 @@
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   MyWidget widget;
-  widget.show();
+  widget.showMaximized();
   return app.exec();
 }
