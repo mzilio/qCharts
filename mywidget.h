@@ -65,7 +65,9 @@ private:
 
     void createActions();
     void createMenus();
-    void createModBar();
+    void createDataWidget();
+    void createDxBar();
+    void connectSignalSlot();
 };
 
 #endif

@@ -1,79 +1,17 @@
 #include <QMessageBox>
+#include <QHeaderView>
 #include "MyWidget.h"
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
     createActions();
     createMenus();
-
-
-
-  QLabel* titleLabel = new QLabel();
-  titleLabel->setText(tr("Title:"));
-  QLineEdit* titleEdit = new QLineEdit();
-
-  QFrame* myFrame1 = new QFrame();
-  myFrame1->setFrameShape(QFrame::HLine);
-
-  QLabel* xLabel = new QLabel();
-  xLabel->setText(tr("Label x-axis:"));
-  QLineEdit* xEdit = new QLineEdit();
-  QLabel* yLabel = new QLabel();
-  yLabel->setText(tr("Label y-axis:"));
-  QLineEdit* yEdit = new QLineEdit();
-
-  QFrame* myFrame2 = new QFrame();
-  myFrame2->setFrameShape(QFrame::HLine);
-
-  QTableWidget* tableWidget = new QTableWidget(10, 2, this);
-  QStringList axisLabel = (QStringList() << "X" << "Y");
-  tableWidget->setHorizontalHeaderLabels(axisLabel);
-
-  //tableWidget->verticalHeader()->hide();
-  //Richiede QHeaderViews
-
-  tableWidget->setAlternatingRowColors(true);
-  tableWidget->setFixedSize(217, 250);
-
-  QPushButton* add = new QPushButton("+");
-  QPushButton* remove = new QPushButton("-");
-
-  QFrame* myFrame3 = new QFrame();
-  myFrame3->setFrameShape(QFrame::HLine);
-
-  QGroupBox *chartBox = new QGroupBox(tr("Chart selection"));
-  QRadioButton *line = new QRadioButton(tr("Line chart"));
-  QRadioButton *bar = new QRadioButton(tr("Bar chart"));
-  QRadioButton *pie = new QRadioButton(tr("Pie chart"));
-  line->setChecked(true);
-  QVBoxLayout *vbox = new QVBoxLayout;
-  vbox->addWidget(line);
-  vbox->addWidget(bar);
-  vbox->addWidget(pie);
-  chartBox->setLayout(vbox);
-
-  QPushButton* draw = new QPushButton(tr("Draw"));
-
-  QGridLayout* desk = new QGridLayout();
-  desk->setColumnStretch(0,1);
-  desk->addWidget(titleLabel,0,1,1,2);
-  desk->addWidget(titleEdit,1,1,1,2);
-  desk->addWidget(myFrame1,2,1,1,2);
-  desk->addWidget(xLabel,3,1,1,2);
-  desk->addWidget(xEdit,4,1,1,2);
-  desk->addWidget(yLabel,5,1,1,2);
-  desk->addWidget(yEdit,6,1,1,2);
-  desk->addWidget(myFrame2,7,1,1,2);
-  desk->addWidget(tableWidget,8,1,1,2);
-  desk->addWidget(add,9,1);
-  desk->addWidget(remove,9,2);
-  desk->addWidget(myFrame3,10,1,1,2);
-  desk->addWidget(chartBox,11,1,1,2);
-  desk->addWidget(draw,12,1,1,2);
-  setLayout(desk);
+    createDataWidget();
+    createDxBar();
+    connectSignalSlot();
 }
 
-void MyWidget::newChart() {
-
+void MyWidget::newChart() { //TODO
+    tableWidget->clearContents();
 }
 
 void MyWidget::open() {
@@ -88,33 +26,26 @@ void MyWidget::saveAs() {
 
 }
 
-void MyWidget::about() {
-    QMessageBox::about(this, tr("About qCharts"), tr("!!Bye Bye!!"));
+void MyWidget::about() { //TODO
+    QMessageBox::about(this, tr("About qCharts"), tr("That's all Folks!"));
 }
 
 void MyWidget::add() {
-
+    tableWidget->insertRow((tableWidget->currentRow())+1);
 }
 
 void MyWidget::remove() {
-
+    tableWidget->removeRow((tableWidget->currentRow())+1);
 }
 
 void MyWidget::createActions() {
     newAct = new QAction(tr("&New"), this);
-    connect(newAct, SIGNAL(triggered()), this, SLOT(newChart()));
     openAct = new QAction(tr("&Open..."), this);
-    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
     saveAct = new QAction(tr("&Save"), this);
-    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
     saveAsAct = new QAction(tr("Save &as..."), this);
-    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
     exitAct = new QAction(tr("&Exit"), this);
-    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(quit()));
     aboutAct = new QAction(tr("&About"), this);
-    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     aboutQtAct = new QAction(tr("About &Qt"), this);
-    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 void MyWidget::createMenus() {
@@ -134,4 +65,70 @@ void MyWidget::createMenus() {
     menuBar->addMenu(fileMenu);
     menuBar->addSeparator();
     menuBar->addMenu(helpMenu);
+}
+
+void MyWidget::createDataWidget() {
+    titleLabel = new QLabel(tr("Title:"));
+    xLabel = new QLabel(tr("Label x-axis:"));
+    yLabel = new QLabel(tr("Label y-axis:"));
+    titleEdit = new QLineEdit();
+    xEdit = new QLineEdit();
+    yEdit = new QLineEdit();
+    tableWidget = new QTableWidget(10, 2, this);
+    QStringList axisLabel = (QStringList() << "X" << "Y");
+    tableWidget->setHorizontalHeaderLabels(axisLabel);
+    tableWidget->verticalHeader()->hide();
+    tableWidget->setAlternatingRowColors(true);
+    tableWidget->setFixedSize(217, 250);
+    addRow = new QPushButton("+");
+    removeRow = new QPushButton("-");
+    draw = new QPushButton(tr("Draw"));
+    chartBox = new QGroupBox(tr("Chart selection"));
+    line = new QRadioButton(tr("Line chart"));
+    bar = new QRadioButton(tr("Bar chart"));
+    pie = new QRadioButton(tr("Pie chart"));
+    line->setChecked(true);
+}
+
+void MyWidget::createDxBar() {
+    separator1 = new QFrame();
+    separator2 = new QFrame();
+    separator3 = new QFrame();
+    separator1->setFrameShape(QFrame::HLine);
+    separator2->setFrameShape(QFrame::HLine);
+    separator3->setFrameShape(QFrame::HLine);
+    vBox = new QVBoxLayout;
+    vBox->addWidget(line);
+    vBox->addWidget(bar);
+    vBox->addWidget(pie);
+    chartBox->setLayout(vBox);
+    desk = new QGridLayout();
+    desk->setColumnStretch(0,1);
+    desk->addWidget(titleLabel,0,1,1,2);
+    desk->addWidget(titleEdit,1,1,1,2);
+    desk->addWidget(separator1,2,1,1,2);
+    desk->addWidget(xLabel,3,1,1,2);
+    desk->addWidget(xEdit,4,1,1,2);
+    desk->addWidget(yLabel,5,1,1,2);
+    desk->addWidget(yEdit,6,1,1,2);
+    desk->addWidget(separator2,7,1,1,2);
+    desk->addWidget(tableWidget,8,1,1,2);
+    desk->addWidget(addRow,9,1);
+    desk->addWidget(removeRow,9,2);
+    desk->addWidget(separator3,10,1,1,2);
+    desk->addWidget(chartBox,11,1,1,2);
+    desk->addWidget(draw,12,1,1,2);
+    setLayout(desk);
+}
+
+void MyWidget::connectSignalSlot() {
+    connect(newAct, SIGNAL(triggered()), this, SLOT(newChart()));
+    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
+    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
+    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
+    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    connect(addRow, SIGNAL(clicked()), this, SLOT(add()));
+    connect(removeRow, SIGNAL(clicked()), this, SLOT(remove()));
 }
