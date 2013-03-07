@@ -1,5 +1,8 @@
 #include <QMessageBox>
 #include <QHeaderView>
+#include <QString>
+#include <QFileDialog>
+#include <QFile>
 #include "MyWidget.h"
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
@@ -10,19 +13,32 @@ MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
     connectSignalSlot();
 }
 
-void MyWidget::newChart() { //TODO
-    tableWidget->clearContents();
+void MyWidget::newChart() {
+    if(maybeSave()) {
+        titleEdit->clear();
+        xEdit->clear();
+        yEdit->clear();
+        tableWidget->clearContents();
+        line->setChecked(true);
+        resetModified();
+    }
 }
 
 void MyWidget::open() {
-
+    if(maybeSave()) {
+        QString fileName = QFileDialog::getOpenFileName(this);
+        if(!fileName.isEmpty()) {
+            loadFile(fileName);
+        }
+        resetModified();
+    }
 }
 
-void MyWidget::save() {
-
+bool MyWidget::save() { //TODO
+    return true;
 }
 
-void MyWidget::saveAs() {
+bool MyWidget::saveAs() { //TODO
 
 }
 
@@ -131,4 +147,36 @@ void MyWidget::connectSignalSlot() {
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(addRow, SIGNAL(clicked()), this, SLOT(add()));
     connect(removeRow, SIGNAL(clicked()), this, SLOT(remove()));
+}
+
+bool MyWidget::maybeSave() {
+    //TODO
+    //come faccio a capire se i dati nella tabella sono stati modificati??
+    //inserire "isModified" in OR nell'if
+    if(titleEdit->isModified() || xEdit->isModified() || yEdit->isModified()) {
+        QMessageBox::StandardButton saveFirst;
+        saveFirst = QMessageBox::warning(this, tr("qCharts"), tr("Data has been modified.\nDo you want to save changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        if(saveFirst == QMessageBox::Save) {
+            return save();
+        }
+        else if(saveFirst == QMessageBox::Cancel) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void MyWidget::resetModified() {
+    titleEdit->setModified(false);
+    xEdit->setModified(false);
+    yEdit->setModified(false);
+}
+
+void MyWidget::loadFile(const QString &fileName) {
+    QFile file(fileName);
+    if(!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("qCharts"), tr("Cannot read file %1:\n%2.").arg(fileName).arg(file.errorString()));
+        return;
+    }
+    //TODO parsing XML against schema and write data on GUI
 }

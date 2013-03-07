@@ -25,8 +25,8 @@ public:
 private slots:
     void newChart();
     void open();
-    void save();
-    void saveAs();
+    bool save();
+    bool saveAs();
     void about();
     void add();
     void remove();
@@ -68,6 +68,9 @@ private:
     void createDataWidget();
     void createDxBar();
     void connectSignalSlot();
+    bool maybeSave();
+    void resetModified();
+    void loadFile(const QString &fileName);
 };
 
 #endif
