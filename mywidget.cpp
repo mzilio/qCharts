@@ -35,7 +35,7 @@ void MyWidget::add() {
 }
 
 void MyWidget::remove() {
-    tableWidget->removeRow((tableWidget->currentRow())+1);
+    tableWidget->removeRow(tableWidget->currentRow());
 }
 
 void MyWidget::createActions() {
