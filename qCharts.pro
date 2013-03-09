@@ -3,9 +3,10 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-HEADERS += MyWidget.h
-SOURCES += main.cpp MyWidget.cpp
+HEADERS += MyWidget.h FileReader.h
+
+SOURCES += main.cpp MyWidget.cpp FileReader.cpp
 
 TRANSLATIONS = qCharts_it.ts
 
-CONFIG -= x86_64
+QT += xml xmlpatterns

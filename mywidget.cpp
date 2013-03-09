@@ -4,8 +4,13 @@
 #include <QFileDialog>
 #include <QFile>
 #include "MyWidget.h"
+#include "FileReader.h"
+
+#include <iostream>
+using namespace std;
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
+    tableChanged=false;
     createActions();
     createMenus();
     createDataWidget();
@@ -26,23 +31,26 @@ void MyWidget::newChart() {
 
 void MyWidget::open() {
     if(maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(this);
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open qCharts File"), QDir::currentPath(), tr("qCharts Files (*.xml)"));
         if(!fileName.isEmpty()) {
-            loadFile(fileName);
+            FileReader reader(fileName, this);
+            if(!reader.read()) {
+                //TODO completare implementazione
+            }
         }
         resetModified();
     }
 }
 
-bool MyWidget::save() { //TODO
+bool MyWidget::save() { //TODO signal save()
     return true;
 }
 
-bool MyWidget::saveAs() { //TODO
-
+bool MyWidget::saveAs() { //TODO signal saveAs()
+    return true;
 }
 
-void MyWidget::about() { //TODO
+void MyWidget::about() { //TODO write something smart for about()
     QMessageBox::about(this, tr("About qCharts"), tr("That's all Folks!"));
 }
 
@@ -52,6 +60,10 @@ void MyWidget::add() {
 
 void MyWidget::remove() {
     tableWidget->removeRow(tableWidget->currentRow());
+}
+
+void MyWidget::tableIsModified() {
+    tableChanged=true;
 }
 
 void MyWidget::createActions() {
@@ -95,7 +107,7 @@ void MyWidget::createDataWidget() {
     tableWidget->setHorizontalHeaderLabels(axisLabel);
     tableWidget->verticalHeader()->hide();
     tableWidget->setAlternatingRowColors(true);
-    tableWidget->setFixedSize(217, 250);
+    tableWidget->setFixedSize(217, 250); //TODO try to give not a fixed size
     addRow = new QPushButton("+");
     removeRow = new QPushButton("-");
     draw = new QPushButton(tr("Draw"));
@@ -147,13 +159,11 @@ void MyWidget::connectSignalSlot() {
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(addRow, SIGNAL(clicked()), this, SLOT(add()));
     connect(removeRow, SIGNAL(clicked()), this, SLOT(remove()));
+    connect(tableWidget, SIGNAL(itemChanged(tableWidget->currentItem())), this, SLOT(tableIsModified())); //FIXME signal for table doesn't work
 }
 
 bool MyWidget::maybeSave() {
-    //TODO
-    //come faccio a capire se i dati nella tabella sono stati modificati??
-    //inserire "isModified" in OR nell'if
-    if(titleEdit->isModified() || xEdit->isModified() || yEdit->isModified()) {
+    if(titleEdit->isModified() || xEdit->isModified() || yEdit->isModified() || tableChanged) {
         QMessageBox::StandardButton saveFirst;
         saveFirst = QMessageBox::warning(this, tr("qCharts"), tr("Data has been modified.\nDo you want to save changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         if(saveFirst == QMessageBox::Save) {
@@ -170,13 +180,10 @@ void MyWidget::resetModified() {
     titleEdit->setModified(false);
     xEdit->setModified(false);
     yEdit->setModified(false);
+    tableChanged=false;
 }
 
-void MyWidget::loadFile(const QString &fileName) {
-    QFile file(fileName);
-    if(!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("qCharts"), tr("Cannot read file %1:\n%2.").arg(fileName).arg(file.errorString()));
-        return;
-    }
-    //TODO parsing XML against schema and write data on GUI
+void MyWidget::setTitle(QString text) {
+    titleEdit->setText(text);
+    cout << "MyWidget::setTitle()" << endl; //TODO togliere
 }

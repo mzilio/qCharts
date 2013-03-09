@@ -21,6 +21,7 @@ class MyWidget : public QWidget {
 
 public:
     MyWidget(QWidget* parent=0);
+    void setTitle(QString);
 
 private slots:
     void newChart();
@@ -30,6 +31,7 @@ private slots:
     void about();
     void add();
     void remove();
+    void tableIsModified();
 
 private:
     QMenuBar* menuBar;
@@ -63,6 +65,8 @@ private:
     QVBoxLayout* vBox;
     QGridLayout* desk;
 
+    bool tableChanged;
+
     void createActions();
     void createMenus();
     void createDataWidget();
@@ -70,7 +74,6 @@ private:
     void connectSignalSlot();
     bool maybeSave();
     void resetModified();
-    void loadFile(const QString &fileName);
 };
 
 #endif
