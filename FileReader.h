@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QFile>
-#include <QXmlStreamReader>
+#include <QDomElement>
 #include "MyWidget.h"
 
 class FileReader : public QWidget {
@@ -17,11 +17,11 @@ private:
 
     MyWidget* parent;
     QFile file;
-    QXmlStreamReader xin;
 
-    void readTitle();
-    void readXLabel();
-    void readYLabel();
+    void parseDocument(const QDomElement& element);
+    void readTitle(const QDomElement& element);
+    void readXLabel(const QDomElement& element);
+    void readYLabel(const QDomElement& element);
 };
 
 #endif

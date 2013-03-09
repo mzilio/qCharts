@@ -22,6 +22,8 @@ class MyWidget : public QWidget {
 public:
     MyWidget(QWidget* parent=0);
     void setTitle(QString);
+    void setXLabel(QString);
+    void setYLabel(QString);
 
 private slots:
     void newChart();

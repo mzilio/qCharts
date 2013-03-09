@@ -185,5 +185,12 @@ void MyWidget::resetModified() {
 
 void MyWidget::setTitle(QString text) {
     titleEdit->setText(text);
-    cout << "MyWidget::setTitle()" << endl; //TODO togliere
+}
+
+void MyWidget::setXLabel(QString text) {
+    xEdit->setText(text);
+}
+
+void MyWidget::setYLabel(QString text) {
+    yEdit->setText(text);
 }

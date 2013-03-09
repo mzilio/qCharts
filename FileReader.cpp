@@ -3,10 +3,9 @@
 #include <QXmlSchema>
 #include <QXmlSchemaValidator>
 #include <QMessageBox>
+#include <QDomDocument>
+#include <QDomNode>
 #include "FileReader.h"
-
-#include <iostream>
-using namespace std;
 
 FileReader::FileReader(QString fileName, MyWidget* p) : file(fileName), parent(p) {
     QByteArray data("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
@@ -35,7 +34,7 @@ FileReader::FileReader(QString fileName, MyWidget* p) : file(fileName), parent(p
     schema.load(data);
     if(schema.isValid()) {
         QXmlSchemaValidator validator(schema);
-        if (validator.validate(&file, QUrl::fromLocalFile(file.fileName()))){
+        if(validator.validate(&file, QUrl::fromLocalFile(file.fileName()))){
             isReadable=true;
         }
         else {
@@ -43,36 +42,51 @@ FileReader::FileReader(QString fileName, MyWidget* p) : file(fileName), parent(p
             QMessageBox::warning(this, tr("qCharts"), tr("The file that you are trying to open isn't valid."));
         }
     }
+    file.close();
 }
 
 bool FileReader::read() {
     if(isReadable) {
-        xin.setDevice(&file);
-        cout << "FileReader::read()" << endl; //TODO togliere
-        while (xin.readNextStartElement()) { //TODO capire come effettuare il parsing
-            if (xin.name() == "title")
-                readTitle();
-            else if (xin.name() == "xlabel")
-                readXLabel();
-            else if (xin.name() == "ylabel")
-                readYLabel();
-            else
-                xin.skipCurrentElement();
+        file.open(QFile::ReadOnly | QFile::Text);
+        QString errorStr;
+        int errorLine;
+        int errorColumn;
+
+        QDomDocument doc;
+        if(!doc.setContent(&file, false, &errorStr, &errorLine, &errorColumn)) {
+            std::cerr << "Error: Parse error at line " << errorLine << ", " << "column " << errorColumn << ": " << qPrintable(errorStr) << std::endl;
+            return false;
         }
+
+        QDomElement root = doc.documentElement();
+        parseDocument(root);
+        return true;
     }
-    return true;
+    else
+        return false;
 }
 
-void FileReader::readTitle() {
-    QString title = xin.readElementText();
-    parent->setTitle(title);
-    cout << "FileReader::readTitle()" << endl; //TODO togliere
+void FileReader::parseDocument(const QDomElement& element) {
+    QDomNode child = element.firstChild();
+    while(!child.isNull()) {
+        if(child.toElement().tagName() == "title")
+            readTitle(child.toElement());
+        else if(child.toElement().tagName() == "xlabel")
+            readXLabel(child.toElement());
+        else if(child.toElement().tagName() == "ylabel")
+            readYLabel(child.toElement());
+        child = child.nextSibling();
+    }
 }
 
-void FileReader::readXLabel() {
-
+void FileReader::readTitle(const QDomElement& element) {
+    parent->setTitle(element.text());
 }
 
-void FileReader::readYLabel() {
+void FileReader::readXLabel(const QDomElement& element) {
+    parent->setXLabel(element.text());
+}
 
+void FileReader::readYLabel(const QDomElement& element) {
+    parent->setYLabel(element.text());
 }
