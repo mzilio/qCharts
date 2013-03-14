@@ -4,24 +4,26 @@
 #include <QWidget>
 #include <QFile>
 #include <QDomElement>
+#include <QAbstractItemModel>
 #include "MyWidget.h"
 
 class FileReader : public QWidget {
 
 public:
-    FileReader(QString, MyWidget*);
-    bool read();
+    FileReader(QString, QAbstractItemModel*, MyWidget*);
+    void read();
 
 private:
     bool isReadable;
 
     MyWidget* parent;
     QFile file;
+    QAbstractItemModel* model;
 
-    void parseDocument(const QDomElement& element);
-    void readTitle(const QDomElement& element);
-    void readXLabel(const QDomElement& element);
-    void readYLabel(const QDomElement& element);
+    void parseDocument(const QDomElement&);
+    void readTitle(const QDomElement&);
+    void readXLabel(const QDomElement&);
+    void readYLabel(const QDomElement&);
 };
 
 #endif

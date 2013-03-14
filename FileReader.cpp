@@ -7,7 +7,7 @@
 #include <QDomNode>
 #include "FileReader.h"
 
-FileReader::FileReader(QString fileName, MyWidget* p) : file(fileName), parent(p) {
+FileReader::FileReader(QString fileName, QAbstractItemModel* d, MyWidget* p) : file(fileName), model(d), parent(p) {
     QByteArray data("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
                     "<xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
                     "<xsd:element name=\"chart\" type=\"chartType\"/>"
@@ -45,28 +45,21 @@ FileReader::FileReader(QString fileName, MyWidget* p) : file(fileName), parent(p
     file.close();
 }
 
-bool FileReader::read() {
+void FileReader::read() {
     if(isReadable) {
         file.open(QFile::ReadOnly | QFile::Text);
-        QString errorStr;
-        int errorLine;
-        int errorColumn;
-
         QDomDocument doc;
-        if(!doc.setContent(&file, false, &errorStr, &errorLine, &errorColumn)) {
-            std::cerr << "Error: Parse error at line " << errorLine << ", " << "column " << errorColumn << ": " << qPrintable(errorStr) << std::endl;
-            return false;
-        }
-
+        if(!doc.setContent(&file, false))
+            QMessageBox::warning(this, tr("qCharts"), tr("There was an error trying to parse the file."));
         QDomElement root = doc.documentElement();
         parseDocument(root);
-        return true;
+        file.close();
     }
-    else
-        return false;
 }
 
 void FileReader::parseDocument(const QDomElement& element) {
+    model->removeRows(0, model->rowCount());
+    int row=0;
     QDomNode child = element.firstChild();
     while(!child.isNull()) {
         if(child.toElement().tagName() == "title")
@@ -75,6 +68,18 @@ void FileReader::parseDocument(const QDomElement& element) {
             readXLabel(child.toElement());
         else if(child.toElement().tagName() == "ylabel")
             readYLabel(child.toElement());
+        else if(child.toElement().tagName() == "point") {
+            model->insertRow(row);
+            QDomNode nephew = child.firstChild();
+            while(!nephew.isNull()) {
+                if(nephew.toElement().tagName() == "x")
+                    model->setData(model->index(row, 0), nephew.toElement().text());
+                else if(nephew.toElement().tagName() == "y")
+                    model->setData(model->index(row, 1), nephew.toElement().text());
+                nephew = nephew.nextSibling();
+            }
+            row++;
+        }
         child = child.nextSibling();
     }
 }

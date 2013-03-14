@@ -1,18 +1,16 @@
 #include <QMessageBox>
-#include <QHeaderView>
 #include <QString>
 #include <QFileDialog>
 #include <QFile>
+#include <QHeaderView>
+#include <QStandardItemModel>
 #include "MyWidget.h"
 #include "FileReader.h"
 
-#include <iostream>
-using namespace std;
-
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
-    tableChanged=false;
     createActions();
     createMenus();
+    createModel();
     createDataWidget();
     createDxBar();
     connectSignalSlot();
@@ -23,7 +21,7 @@ void MyWidget::newChart() {
         titleEdit->clear();
         xEdit->clear();
         yEdit->clear();
-        tableWidget->clearContents();
+        //TODO clear per QTableView o QAbstractItemModel
         line->setChecked(true);
         resetModified();
     }
@@ -33,10 +31,8 @@ void MyWidget::open() {
     if(maybeSave()) {
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open qCharts File"), QDir::currentPath(), tr("qCharts Files (*.xml)"));
         if(!fileName.isEmpty()) {
-            FileReader reader(fileName, this);
-            if(!reader.read()) {
-                //TODO completare implementazione
-            }
+            FileReader reader(fileName, model, this);
+            reader.read();
         }
         resetModified();
     }
@@ -55,15 +51,11 @@ void MyWidget::about() { //TODO write something smart for about()
 }
 
 void MyWidget::add() {
-    tableWidget->insertRow((tableWidget->currentRow())+1);
+    model->insertRow(model->rowCount());
 }
 
 void MyWidget::remove() {
-    tableWidget->removeRow(tableWidget->currentRow());
-}
-
-void MyWidget::tableIsModified() {
-    tableChanged=true;
+    model->removeRow((model->rowCount())-1);
 }
 
 void MyWidget::createActions() {
@@ -95,6 +87,12 @@ void MyWidget::createMenus() {
     menuBar->addMenu(helpMenu);
 }
 
+void MyWidget::createModel() {
+    model = new QStandardItemModel(1, 2, this);
+    model->setHeaderData(0, Qt::Horizontal, tr("X"));
+    model->setHeaderData(1, Qt::Horizontal, tr("Y"));
+}
+
 void MyWidget::createDataWidget() {
     titleLabel = new QLabel(tr("Title:"));
     xLabel = new QLabel(tr("Label x-axis:"));
@@ -102,12 +100,12 @@ void MyWidget::createDataWidget() {
     titleEdit = new QLineEdit();
     xEdit = new QLineEdit();
     yEdit = new QLineEdit();
-    tableWidget = new QTableWidget(10, 2, this);
-    QStringList axisLabel = (QStringList() << "X" << "Y");
-    tableWidget->setHorizontalHeaderLabels(axisLabel);
-    tableWidget->verticalHeader()->hide();
-    tableWidget->setAlternatingRowColors(true);
-    tableWidget->setFixedSize(217, 250); //TODO try to give not a fixed size
+    table = new QTableView;
+    table->setModel(model);
+    QItemSelectionModel* selectionModel = new QItemSelectionModel(model);
+    table->setSelectionModel(selectionModel);
+    QHeaderView* headerView = table->horizontalHeader();
+    headerView->setStretchLastSection(true);
     addRow = new QPushButton("+");
     removeRow = new QPushButton("-");
     draw = new QPushButton(tr("Draw"));
@@ -140,7 +138,7 @@ void MyWidget::createDxBar() {
     desk->addWidget(yLabel,5,1,1,2);
     desk->addWidget(yEdit,6,1,1,2);
     desk->addWidget(separator2,7,1,1,2);
-    desk->addWidget(tableWidget,8,1,1,2);
+    desk->addWidget(table,8,1,1,2);
     desk->addWidget(addRow,9,1);
     desk->addWidget(removeRow,9,2);
     desk->addWidget(separator3,10,1,1,2);
@@ -159,11 +157,12 @@ void MyWidget::connectSignalSlot() {
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(addRow, SIGNAL(clicked()), this, SLOT(add()));
     connect(removeRow, SIGNAL(clicked()), this, SLOT(remove()));
-    connect(tableWidget, SIGNAL(itemChanged(tableWidget->currentItem())), this, SLOT(tableIsModified())); //FIXME signal for table doesn't work
+    //TODO connect per la modifica del model
 }
 
 bool MyWidget::maybeSave() {
-    if(titleEdit->isModified() || xEdit->isModified() || yEdit->isModified() || tableChanged) {
+    if(titleEdit->isModified() || xEdit->isModified() || yEdit->isModified()) {
+        //TODO flag per la modifica dei dati nel model
         QMessageBox::StandardButton saveFirst;
         saveFirst = QMessageBox::warning(this, tr("qCharts"), tr("Data has been modified.\nDo you want to save changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         if(saveFirst == QMessageBox::Save) {
@@ -180,7 +179,7 @@ void MyWidget::resetModified() {
     titleEdit->setModified(false);
     xEdit->setModified(false);
     yEdit->setModified(false);
-    tableChanged=false;
+    //TODO Annullare modifiche QAbstractItemModel serve?
 }
 
 void MyWidget::setTitle(QString text) {

@@ -9,12 +9,14 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QFrame>
-#include <QTableWidget>
+#include <QTableView>
 #include <QPushButton>
 #include <QGroupBox>
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QAbstractItemModel>
+#include <QItemSelectionModel>
 
 class MyWidget : public QWidget {
     Q_OBJECT
@@ -33,7 +35,6 @@ private slots:
     void about();
     void add();
     void remove();
-    void tableIsModified();
 
 private:
     QMenuBar* menuBar;
@@ -56,7 +57,7 @@ private:
     QFrame* separator1;
     QFrame* separator2;
     QFrame* separator3;
-    QTableWidget* tableWidget;
+    QTableView* table;
     QPushButton* addRow;
     QPushButton* removeRow;
     QPushButton* draw;
@@ -66,11 +67,12 @@ private:
     QRadioButton* pie;
     QVBoxLayout* vBox;
     QGridLayout* desk;
-
-    bool tableChanged;
+    QAbstractItemModel* model;
+    QItemSelectionModel* selectionModel;
 
     void createActions();
     void createMenus();
+    void createModel();
     void createDataWidget();
     void createDxBar();
     void connectSignalSlot();
