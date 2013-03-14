@@ -3,8 +3,8 @@
 
 #include <QWidget>
 #include <QFile>
-#include <QDomElement>
 #include <QAbstractItemModel>
+#include <QDomElement>
 #include "MyWidget.h"
 
 class FileReader : public QWidget {
@@ -15,10 +15,9 @@ public:
 
 private:
     bool isReadable;
-
-    MyWidget* parent;
     QFile file;
     QAbstractItemModel* model;
+    MyWidget* parent;
 
     void parseDocument(const QDomElement&);
     void readTitle(const QDomElement&);

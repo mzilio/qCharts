@@ -26,6 +26,9 @@ public:
     void setTitle(QString);
     void setXLabel(QString);
     void setYLabel(QString);
+    QString getTitle();
+    QString getXLabel();
+    QString getYLabel();
 
 private slots:
     void newChart();
@@ -35,6 +38,7 @@ private slots:
     void about();
     void add();
     void remove();
+    void changingModel();
 
 private:
     QMenuBar* menuBar;
@@ -70,10 +74,14 @@ private:
     QAbstractItemModel* model;
     QItemSelectionModel* selectionModel;
 
+    QString fileName;
+    bool modelIsChanged;
+
     void createActions();
     void createMenus();
     void createModel();
     void createDataWidget();
+    void createView();
     void createDxBar();
     void connectSignalSlot();
     bool maybeSave();

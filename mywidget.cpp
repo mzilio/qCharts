@@ -6,12 +6,15 @@
 #include <QStandardItemModel>
 #include "MyWidget.h"
 #include "FileReader.h"
+#include "FileWriter.h"
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
+    modelIsChanged=false;
     createActions();
     createMenus();
     createModel();
     createDataWidget();
+    createView();
     createDxBar();
     connectSignalSlot();
 }
@@ -21,7 +24,8 @@ void MyWidget::newChart() {
         titleEdit->clear();
         xEdit->clear();
         yEdit->clear();
-        //TODO clear per QTableView o QAbstractItemModel
+        createModel();
+        createView();
         line->setChecked(true);
         resetModified();
     }
@@ -29,7 +33,7 @@ void MyWidget::newChart() {
 
 void MyWidget::open() {
     if(maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open qCharts File"), QDir::currentPath(), tr("qCharts Files (*.xml)"));
+        fileName = QFileDialog::getOpenFileName(this, tr("Open qCharts File"), QDir::currentPath(), tr("qCharts Files (*.xml)"));
         if(!fileName.isEmpty()) {
             FileReader reader(fileName, model, this);
             reader.read();
@@ -38,11 +42,22 @@ void MyWidget::open() {
     }
 }
 
-bool MyWidget::save() { //TODO signal save()
-    return true;
+bool MyWidget::save() {
+    if(fileName.isEmpty())
+        return saveAs();
+    else {
+        FileWriter writer(fileName, model, this);
+        resetModified();
+        return true;
+    }
 }
 
-bool MyWidget::saveAs() { //TODO signal saveAs()
+bool MyWidget::saveAs() {
+    fileName = QFileDialog::getSaveFileName(this, tr("Save qCharts File"), QDir::currentPath(), tr("qCharts Files (*.xml)"));
+    if(fileName.isEmpty())
+        return false;
+    FileWriter writer(fileName, model, this);
+    resetModified();
     return true;
 }
 
@@ -56,6 +71,10 @@ void MyWidget::add() {
 
 void MyWidget::remove() {
     model->removeRow((model->rowCount())-1);
+}
+
+void MyWidget::changingModel() {
+    modelIsChanged=true;
 }
 
 void MyWidget::createActions() {
@@ -101,11 +120,6 @@ void MyWidget::createDataWidget() {
     xEdit = new QLineEdit();
     yEdit = new QLineEdit();
     table = new QTableView;
-    table->setModel(model);
-    QItemSelectionModel* selectionModel = new QItemSelectionModel(model);
-    table->setSelectionModel(selectionModel);
-    QHeaderView* headerView = table->horizontalHeader();
-    headerView->setStretchLastSection(true);
     addRow = new QPushButton("+");
     removeRow = new QPushButton("-");
     draw = new QPushButton(tr("Draw"));
@@ -114,6 +128,14 @@ void MyWidget::createDataWidget() {
     bar = new QRadioButton(tr("Bar chart"));
     pie = new QRadioButton(tr("Pie chart"));
     line->setChecked(true);
+}
+
+void MyWidget::createView() {
+    table->setModel(model);
+    QItemSelectionModel* selectionModel = new QItemSelectionModel(model);
+    table->setSelectionModel(selectionModel);
+    QHeaderView* headerView = table->horizontalHeader();
+    headerView->setStretchLastSection(true);
 }
 
 void MyWidget::createDxBar() {
@@ -157,12 +179,11 @@ void MyWidget::connectSignalSlot() {
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(addRow, SIGNAL(clicked()), this, SLOT(add()));
     connect(removeRow, SIGNAL(clicked()), this, SLOT(remove()));
-    //TODO connect per la modifica del model
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(changingModel()));
 }
 
 bool MyWidget::maybeSave() {
-    if(titleEdit->isModified() || xEdit->isModified() || yEdit->isModified()) {
-        //TODO flag per la modifica dei dati nel model
+    if(titleEdit->isModified() || xEdit->isModified() || yEdit->isModified() || modelIsChanged) {
         QMessageBox::StandardButton saveFirst;
         saveFirst = QMessageBox::warning(this, tr("qCharts"), tr("Data has been modified.\nDo you want to save changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         if(saveFirst == QMessageBox::Save) {
@@ -179,7 +200,7 @@ void MyWidget::resetModified() {
     titleEdit->setModified(false);
     xEdit->setModified(false);
     yEdit->setModified(false);
-    //TODO Annullare modifiche QAbstractItemModel serve?
+    modelIsChanged=false;
 }
 
 void MyWidget::setTitle(QString text) {
@@ -192,4 +213,16 @@ void MyWidget::setXLabel(QString text) {
 
 void MyWidget::setYLabel(QString text) {
     yEdit->setText(text);
+}
+
+QString MyWidget::getTitle() {
+    return titleEdit->text();
+}
+
+QString MyWidget::getXLabel() {
+    return xEdit->text();
+}
+
+QString MyWidget::getYLabel() {
+    return yEdit->text();
 }
