@@ -4,12 +4,15 @@
 #include <QFile>
 #include <QHeaderView>
 #include <QStandardItemModel>
+#include <QQueue>
 #include "MyWidget.h"
 #include "FileReader.h"
 #include "FileWriter.h"
+#include "CheckData.h"
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
     modelIsChanged=false;
+    typeData=-1;
     createActions();
     createMenus();
     createModel();
@@ -26,8 +29,10 @@ void MyWidget::newChart() {
         yEdit->clear();
         createModel();
         createView();
-        line->setChecked(true);
+        canvas->setVariable("", 0);
+        canvas->draw();
         resetModified();
+        showRadioButton();
     }
 }
 
@@ -38,6 +43,7 @@ void MyWidget::open() {
             FileReader reader(fileName, model, this);
             reader.read();
         }
+        changingModel();
         resetModified();
     }
 }
@@ -75,6 +81,35 @@ void MyWidget::remove() {
 
 void MyWidget::changingModel() {
     modelIsChanged=true;
+    CheckData data(model, typeData);
+    if(typeData==-1) {
+        line->setVisible(false);
+        bar->setVisible(false);
+        pie->setVisible(false);
+    }
+    else if(typeData==0 || typeData==1) {
+        line->setVisible(false);
+        bar->setVisible(true);
+        pie->setVisible(true);
+    }
+    else if(typeData==2) {
+        line->setVisible(true);
+        bar->setVisible(false);
+        pie->setVisible(false);
+    }
+}
+
+void MyWidget::beforeDraw() {
+    QString radio="";
+    if(line->isChecked())
+        radio="line";
+    else if(bar->isChecked())
+        radio="bar";
+    else if(pie->isChecked())
+        radio="pie";
+    //TODO NormValue
+    canvas->setVariable(radio, model);
+    canvas->draw();
 }
 
 void MyWidget::createActions() {
@@ -110,9 +145,11 @@ void MyWidget::createModel() {
     model = new QStandardItemModel(1, 2, this);
     model->setHeaderData(0, Qt::Horizontal, tr("X"));
     model->setHeaderData(1, Qt::Horizontal, tr("Y"));
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(changingModel()));
 }
 
 void MyWidget::createDataWidget() {
+    canvas = new MyCanvas(this);
     titleLabel = new QLabel(tr("Title:"));
     xLabel = new QLabel(tr("Label x-axis:"));
     yLabel = new QLabel(tr("Label y-axis:"));
@@ -127,12 +164,11 @@ void MyWidget::createDataWidget() {
     line = new QRadioButton(tr("Line chart"));
     bar = new QRadioButton(tr("Bar chart"));
     pie = new QRadioButton(tr("Pie chart"));
-    line->setChecked(true);
 }
 
 void MyWidget::createView() {
     table->setModel(model);
-    QItemSelectionModel* selectionModel = new QItemSelectionModel(model);
+    selectionModel = new QItemSelectionModel(model);
     table->setSelectionModel(selectionModel);
     QHeaderView* headerView = table->horizontalHeader();
     headerView->setStretchLastSection(true);
@@ -152,6 +188,7 @@ void MyWidget::createDxBar() {
     chartBox->setLayout(vBox);
     desk = new QGridLayout();
     desk->setColumnStretch(0,1);
+    desk->addWidget(canvas,0,0,12,1);
     desk->addWidget(titleLabel,0,1,1,2);
     desk->addWidget(titleEdit,1,1,1,2);
     desk->addWidget(separator1,2,1,1,2);
@@ -179,7 +216,7 @@ void MyWidget::connectSignalSlot() {
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(addRow, SIGNAL(clicked()), this, SLOT(add()));
     connect(removeRow, SIGNAL(clicked()), this, SLOT(remove()));
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(changingModel()));
+    connect(draw, SIGNAL(clicked()), this, SLOT(beforeDraw()));
 }
 
 bool MyWidget::maybeSave() {
@@ -201,6 +238,13 @@ void MyWidget::resetModified() {
     xEdit->setModified(false);
     yEdit->setModified(false);
     modelIsChanged=false;
+    typeData=-1;
+}
+
+void MyWidget::showRadioButton() {
+    line->setVisible(true);
+    bar->setVisible(true);
+    pie->setVisible(true);
 }
 
 void MyWidget::setTitle(QString text) {

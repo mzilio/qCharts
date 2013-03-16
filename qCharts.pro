@@ -4,11 +4,17 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 HEADERS += MyWidget.h FileReader.h \
-    FileWriter.h
+    FileWriter.h \
+    MyCanvas.h \
+    CheckData.h \
+    NormValue.h
 
 SOURCES += main.cpp MyWidget.cpp FileReader.cpp \
-    FileWriter.cpp
+    FileWriter.cpp \
+    MyCanvas.cpp \
+    CheckData.cpp \
+    NormValue.cpp
 
-TRANSLATIONS = qCharts_it.ts
+TRANSLATIONS = lang/qCharts_it.ts
 
 QT += xml xmlpatterns

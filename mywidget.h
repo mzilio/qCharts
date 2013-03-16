@@ -17,6 +17,7 @@
 #include <QGridLayout>
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
+#include "MyCanvas.h"
 
 class MyWidget : public QWidget {
     Q_OBJECT
@@ -39,6 +40,7 @@ private slots:
     void add();
     void remove();
     void changingModel();
+    void beforeDraw();
 
 private:
     QMenuBar* menuBar;
@@ -52,6 +54,7 @@ private:
     QAction* aboutAct;
     QAction* aboutQtAct;
 
+    MyCanvas* canvas;
     QLabel* titleLabel;
     QLabel* xLabel;
     QLabel* yLabel;
@@ -76,6 +79,7 @@ private:
 
     QString fileName;
     bool modelIsChanged;
+    int typeData;
 
     void createActions();
     void createMenus();
@@ -86,6 +90,7 @@ private:
     void connectSignalSlot();
     bool maybeSave();
     void resetModified();
+    void showRadioButton();
 };
 
 #endif
