@@ -1,31 +1,37 @@
 #include "NormValue.h"
 
-NormValue::NormValue() {
-}
-
-/*
-        if(!xString && !yString) {
-            for(int i=0; i<model->rowCount(); i++) {
-                value->enqueue(QPointF((model->data(model->index(i, 0))).toDouble(), (model->data(model->index(i, 1))).toDouble()));
+NormValue::NormValue(QQueue<double> *qDouble, QQueue<QPointF> *qPoint, QAbstractItemModel* model, int typeData) {
+    if(qDouble) {
+        if(typeData==0 || typeData==1) {
+            double max=(model->data(model->index(0, typeData))).toDouble();
+            for(int i=1; i<model->rowCount(); i++) {
+                double value=(model->data(model->index(i, typeData))).toDouble();
+                if(max<value)
+                    max=value;
             }
-        }
-
-        else if(!xString && yString) {
             for(int i=0; i<model->rowCount(); i++) {
-                value->enqueue(QPointF((model->data(model->index(i, 0))).toDouble()), i);
-            }
-
-        }
-
-        else if(xString && !yString) {
-            for(int i=0; i<model->rowCount(); i++) {
-                value->enqueue(QPointF(i, (model->data(model->index(i, 1))).toDouble()));
+                double value=(model->data(model->index(i, typeData))).toDouble();
+                qDouble->enqueue(100*value/max);
             }
         }
     }
-
-int max=d[0];
-for(int i=1;i<size_;i++) if(max<d[i]) max = d[i];
-for(int i=0;i<size_;i++) v[i] = max_*d[i]/max;
-
-*/
+    else if(qPoint) {
+        if(typeData==2) {
+            double max0=(model->data(model->index(0, 0))).toDouble();
+            double max1=(model->data(model->index(0, 1))).toDouble();
+            for(int i=1; i<model->rowCount(); i++) {
+                double value0=(model->data(model->index(i, 0))).toDouble();
+                double value1=(model->data(model->index(i, 1))).toDouble();
+                if(max0<value0)
+                    max0=value0;
+                if(max1<value1)
+                    max1=value1;
+            }
+            for(int i=0; i<model->rowCount(); i++) {
+                double value0=(model->data(model->index(i, 0))).toDouble();
+                double value1=(model->data(model->index(i, 1))).toDouble();
+                qPoint->enqueue(QPointF(100*value0/max0, 100*value1/max1));
+            }
+        }
+    }
+}

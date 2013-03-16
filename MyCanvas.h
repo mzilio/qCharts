@@ -9,7 +9,7 @@ class MyCanvas : public QWidget {
 
 public:
     MyCanvas(QWidget* parent=0);
-    void setVariable(QString, QAbstractItemModel*);
+    void setVariable(QString, int, QAbstractItemModel*);
 
 public slots:
     void draw();
@@ -20,6 +20,7 @@ protected:
 private:
     QAbstractItemModel* model;
     QString radio;
+    int typeData;
 };
 
 #endif

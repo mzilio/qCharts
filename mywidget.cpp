@@ -9,6 +9,7 @@
 #include "FileReader.h"
 #include "FileWriter.h"
 #include "CheckData.h"
+#include "NormValue.h"
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
     modelIsChanged=false;
@@ -29,7 +30,7 @@ void MyWidget::newChart() {
         yEdit->clear();
         createModel();
         createView();
-        canvas->setVariable("", 0);
+        canvas->setVariable("", typeData, 0);
         canvas->draw();
         resetModified();
         showRadioButton();
@@ -107,8 +108,7 @@ void MyWidget::beforeDraw() {
         radio="bar";
     else if(pie->isChecked())
         radio="pie";
-    //TODO NormValue
-    canvas->setVariable(radio, model);
+    canvas->setVariable(radio, typeData, model);
     canvas->draw();
 }
 
