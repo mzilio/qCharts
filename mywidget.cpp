@@ -29,8 +29,6 @@ void MyWidget::newChart() {
         yEdit->clear();
         createModel();
         createView();
-        canvas->setVariable(0, "", typeData, 0);
-        canvas->draw();
         resetModified();
         showRadioButton();
     }
@@ -107,10 +105,14 @@ void MyWidget::beforeDraw() {
         radio="bar";
     else if(pie->isChecked())
         radio="pie";
-    model->sort(0);
     NormValue norm(&qPoint, model, typeData);
-    canvas->setVariable(&qPoint, radio, typeData, model);
-    canvas->draw();
+    for(int i=0; i<(qPoint.size())-1; i++) {
+        scene->addLine((qPoint.value(i)).x(), (qPoint.value(i)).y(), (qPoint.value(i+1)).x(), (qPoint.value(i+1)).y());
+    }
+    view->setScene(scene);
+    view->setDragMode(QGraphicsView::ScrollHandDrag);
+    view->setRenderHint(QPainter::Antialiasing);
+    view->show();
 }
 
 void MyWidget::createActions() {
@@ -147,10 +149,10 @@ void MyWidget::createModel() {
     model->setHeaderData(0, Qt::Horizontal, tr("X"));
     model->setHeaderData(1, Qt::Horizontal, tr("Y"));
     connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(changingModel()));
+    scene=new QGraphicsScene();
 }
 
 void MyWidget::createDataWidget() {
-    canvas = new MyCanvas(this);
     titleLabel = new QLabel(tr("Title:"));
     xLabel = new QLabel(tr("Label x-axis:"));
     yLabel = new QLabel(tr("Label y-axis:"));
@@ -173,6 +175,7 @@ void MyWidget::createView() {
     table->setSelectionModel(selectionModel);
     QHeaderView* headerView = table->horizontalHeader();
     headerView->setStretchLastSection(true);
+    view=new QGraphicsView();
 }
 
 void MyWidget::createDxBar() {
@@ -189,7 +192,7 @@ void MyWidget::createDxBar() {
     chartBox->setLayout(vBox);
     desk = new QGridLayout();
     desk->setColumnStretch(0,1);
-    desk->addWidget(canvas,0,0,12,1);
+    desk->addWidget(view,0,0,13,1);
     desk->addWidget(titleLabel,0,1,1,2);
     desk->addWidget(titleEdit,1,1,1,2);
     desk->addWidget(separator1,2,1,1,2);

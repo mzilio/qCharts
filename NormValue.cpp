@@ -2,6 +2,7 @@
 
 NormValue::NormValue(QQueue<QPointF>* qPoint, QAbstractItemModel* model, int typeData) {
     int dim=500;
+    model->sort(0);
     if(typeData==0 || typeData==1) {
         double max=(model->data(model->index(0, typeData))).toDouble();
         for(int i=1; i<model->rowCount(); i++) {

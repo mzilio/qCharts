@@ -2,9 +2,6 @@
 #include <QMessageBox>
 #include "CheckData.h"
 
-#include <iostream>
-using namespace std;
-
 CheckData::CheckData(QAbstractItemModel* model, int &type) {
     bool xString=false, yString=false;
     if(model) {

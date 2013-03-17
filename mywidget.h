@@ -19,7 +19,8 @@
 #include <QItemSelectionModel>
 #include <QQueue>
 #include <QPointF>
-#include "MyCanvas.h"
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 class MyWidget : public QWidget {
     Q_OBJECT
@@ -56,7 +57,8 @@ private:
     QAction* aboutAct;
     QAction* aboutQtAct;
 
-    MyCanvas* canvas;
+    QGraphicsScene* scene;
+    QGraphicsView* view;
     QLabel* titleLabel;
     QLabel* xLabel;
     QLabel* yLabel;
