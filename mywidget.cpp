@@ -10,6 +10,9 @@
 #include "CheckData.h"
 #include "NormValue.h"
 
+#include <iostream>
+using namespace std;
+
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
     modelIsChanged=false;
     typeData=-1;
@@ -29,6 +32,8 @@ void MyWidget::newChart() {
         yEdit->clear();
         createModel();
         createView();
+        scene->clear();
+        view->update();
         resetModified();
         showRadioButton();
     }
@@ -105,7 +110,11 @@ void MyWidget::beforeDraw() {
         radio="bar";
     else if(pie->isChecked())
         radio="pie";
+
+    //NOTE riordinare le cose..ma prima le idee
+
     NormValue norm(&qPoint, model, typeData);
+    scene->clear(); //NOTE pulire QGraphicsScene prima di iniziare..come anche per la QQueue
     for(int i=0; i<(qPoint.size())-1; i++) {
         scene->addLine((qPoint.value(i)).x(), (qPoint.value(i)).y(), (qPoint.value(i+1)).x(), (qPoint.value(i+1)).y());
     }
@@ -114,6 +123,9 @@ void MyWidget::beforeDraw() {
     view->setDragMode(QGraphicsView::ScrollHandDrag);
     view->setRenderHint(QPainter::Antialiasing);
     view->update();
+
+    cout << "scene::" << scene->items().size();
+    cout << " view::"<< view->items().size() << endl;
 }
 
 void MyWidget::createActions() {
@@ -150,10 +162,11 @@ void MyWidget::createModel() {
     model->setHeaderData(0, Qt::Horizontal, tr("X"));
     model->setHeaderData(1, Qt::Horizontal, tr("Y"));
     connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(changingModel()));
-    scene=new QGraphicsScene();
 }
 
 void MyWidget::createDataWidget() {
+    scene=new QGraphicsScene();
+    view=new QGraphicsView(scene);
     titleLabel = new QLabel(tr("Title:"));
     xLabel = new QLabel(tr("Label x-axis:"));
     yLabel = new QLabel(tr("Label y-axis:"));
@@ -176,7 +189,6 @@ void MyWidget::createView() {
     table->setSelectionModel(selectionModel);
     QHeaderView* headerView = table->horizontalHeader();
     headerView->setStretchLastSection(true);
-    view=new QGraphicsView();
 }
 
 void MyWidget::createDxBar() {
