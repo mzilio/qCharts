@@ -7,13 +7,15 @@ HEADERS += MyWidget.h FileReader.h \
     FileWriter.h \
     MyCanvas.h \
     CheckData.h \
-    NormValue.h
+    NormValue.h \
+    LineChart.h
 
 SOURCES += main.cpp MyWidget.cpp FileReader.cpp \
     FileWriter.cpp \
     MyCanvas.cpp \
     CheckData.cpp \
-    NormValue.cpp
+    NormValue.cpp \
+    LineChart.cpp
 
 TRANSLATIONS = lang/qCharts_it.ts
 

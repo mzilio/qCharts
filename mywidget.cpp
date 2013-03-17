@@ -4,7 +4,6 @@
 #include <QFile>
 #include <QHeaderView>
 #include <QStandardItemModel>
-#include <QQueue>
 #include "MyWidget.h"
 #include "FileReader.h"
 #include "FileWriter.h"
@@ -30,7 +29,7 @@ void MyWidget::newChart() {
         yEdit->clear();
         createModel();
         createView();
-        canvas->setVariable("", typeData, 0);
+        canvas->setVariable(0, "", typeData, 0);
         canvas->draw();
         resetModified();
         showRadioButton();
@@ -108,7 +107,9 @@ void MyWidget::beforeDraw() {
         radio="bar";
     else if(pie->isChecked())
         radio="pie";
-    canvas->setVariable(radio, typeData, model);
+    model->sort(0);
+    NormValue norm(&qPoint, model, typeData);
+    canvas->setVariable(&qPoint, radio, typeData, model);
     canvas->draw();
 }
 

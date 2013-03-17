@@ -8,7 +8,7 @@
 class NormValue {
 
 public:
-    NormValue(QQueue<double>*, QQueue<QPointF>*, QAbstractItemModel*, int);
+    NormValue(QQueue<QPointF>*, QAbstractItemModel*, int);
 
 };
 

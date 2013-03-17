@@ -17,6 +17,8 @@
 #include <QGridLayout>
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
+#include <QQueue>
+#include <QPointF>
 #include "MyCanvas.h"
 
 class MyWidget : public QWidget {
@@ -77,6 +79,7 @@ private:
     QAbstractItemModel* model;
     QItemSelectionModel* selectionModel;
 
+    QQueue<QPointF> qPoint;
     QString fileName;
     bool modelIsChanged;
     int typeData;
