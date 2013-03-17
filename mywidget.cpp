@@ -109,10 +109,11 @@ void MyWidget::beforeDraw() {
     for(int i=0; i<(qPoint.size())-1; i++) {
         scene->addLine((qPoint.value(i)).x(), (qPoint.value(i)).y(), (qPoint.value(i+1)).x(), (qPoint.value(i+1)).y());
     }
+    qPoint.clear();
     view->setScene(scene);
     view->setDragMode(QGraphicsView::ScrollHandDrag);
     view->setRenderHint(QPainter::Antialiasing);
-    view->show();
+    view->update();
 }
 
 void MyWidget::createActions() {
