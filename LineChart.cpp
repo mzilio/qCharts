@@ -11,4 +11,5 @@ LineChart::LineChart(QPainter &p, QQueue<QPointF>* queue) {
         p.setPen(QColor(Qt::blue));
         p.drawLine(queue->value(i), queue->value(i+1));
     }
+    queue->clear();
 }
