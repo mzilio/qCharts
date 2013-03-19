@@ -8,14 +8,16 @@ HEADERS += MyWidget.h \
     FileWriter.h \
     CheckData.h \
     NormValue.h \
-    LineChart.h
+    LineChart.h \
+    PieChart.h
 
 SOURCES += main.cpp MyWidget.cpp \
     FileReader.cpp \
     FileWriter.cpp \
     CheckData.cpp \
     NormValue.cpp \
-    LineChart.cpp
+    LineChart.cpp \
+    PieChart.cpp
 
 TRANSLATIONS = lang/qCharts_it.ts
 

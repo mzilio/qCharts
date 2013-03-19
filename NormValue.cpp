@@ -1,8 +1,9 @@
 #include "NormValue.h"
 
 NormValue::NormValue(QQueue<QPointF>* qPoint, QAbstractItemModel* model, int typeData) {
-    int dim=500;
-    model->sort(0);
+    int dim=600;
+    //model->sort(0);
+    qPoint->clear();
     if(typeData==0 || typeData==1) {
         double max=(model->data(model->index(0, typeData))).toDouble();
         for(int i=1; i<model->rowCount(); i++) {
@@ -31,5 +32,6 @@ NormValue::NormValue(QQueue<QPointF>* qPoint, QAbstractItemModel* model, int typ
             double value1=(model->data(model->index(i, 1))).toDouble();
             qPoint->enqueue(QPointF(dim*value0/max0, dim-(dim*value1/max1)));
         }
+        //TODO estendere QPointF con un metodo per il confronto (operator<) e poi invocare qSort (QtAlgorithms)
     }
 }

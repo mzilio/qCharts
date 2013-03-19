@@ -9,9 +9,8 @@
 #include "FileWriter.h"
 #include "CheckData.h"
 #include "NormValue.h"
-
-#include <iostream>
-using namespace std;
+#include "LineChart.h"
+#include "PieChart.h"
 
 MyWidget::MyWidget(QWidget* parent) : QWidget(parent) {
     modelIsChanged=false;
@@ -103,29 +102,22 @@ void MyWidget::changingModel() {
 }
 
 void MyWidget::beforeDraw() {
+    scene->clear();
+    NormValue norm(&qPoint, model, typeData);
     QString radio="";
     if(line->isChecked())
-        radio="line";
+        LineChart(&qPoint, scene);
+        //radio="line";
     else if(bar->isChecked())
         radio="bar";
     else if(pie->isChecked())
-        radio="pie";
-
+        PieChart(&qPoint, scene);
+        //radio="pie";
     //NOTE riordinare le cose..ma prima le idee
-
-    NormValue norm(&qPoint, model, typeData);
-    scene->clear(); //NOTE pulire QGraphicsScene prima di iniziare..come anche per la QQueue
-    for(int i=0; i<(qPoint.size())-1; i++) {
-        scene->addLine((qPoint.value(i)).x(), (qPoint.value(i)).y(), (qPoint.value(i+1)).x(), (qPoint.value(i+1)).y());
-    }
-    qPoint.clear();
-    view->setScene(scene);
+    //NOTE pulire QGraphicsScene prima di iniziare..come anche per la QQueue
     view->setDragMode(QGraphicsView::ScrollHandDrag);
     view->setRenderHint(QPainter::Antialiasing);
     view->update();
-
-    cout << "scene::" << scene->items().size();
-    cout << " view::"<< view->items().size() << endl;
 }
 
 void MyWidget::createActions() {

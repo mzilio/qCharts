@@ -4,7 +4,7 @@
 class LineChart {
 
 public:
-    LineChart(QPainter&, QQueue<QPointF>*);
+    LineChart(QQueue<QPointF>*, QGraphicsScene*);
 };
 
 #endif
