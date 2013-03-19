@@ -247,7 +247,6 @@ void MyWidget::resetModified() {
     xEdit->setModified(false);
     yEdit->setModified(false);
     modelIsChanged=false;
-    typeData=-1;
 }
 
 void MyWidget::showRadioButton() {

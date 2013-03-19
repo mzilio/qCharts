@@ -11,7 +11,8 @@ HEADERS += MyWidget.h \
     LineChart.h \
     PieChart.h
 
-SOURCES += main.cpp MyWidget.cpp \
+SOURCES += main.cpp \
+    MyWidget.cpp \
     FileReader.cpp \
     FileWriter.cpp \
     CheckData.cpp \
