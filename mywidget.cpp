@@ -113,8 +113,6 @@ void MyWidget::beforeDraw() {
     else if(pie->isChecked())
         PieChart(&qPoint, scene);
         //radio="pie";
-    //NOTE riordinare le cose..ma prima le idee
-    //NOTE pulire QGraphicsScene prima di iniziare..come anche per la QQueue
     view->setDragMode(QGraphicsView::ScrollHandDrag);
     view->setRenderHint(QPainter::Antialiasing);
     view->update();

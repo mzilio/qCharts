@@ -1,22 +1,22 @@
 #include "NormValue.h"
 
 NormValue::NormValue(QQueue<QPointF>* qPoint, QAbstractItemModel* model, int typeData) {
-    int dim=600;
-    //model->sort(0);
+    //FIXME model->sort(0);
     qPoint->clear();
     if(typeData==0 || typeData==1) {
-        double max=(model->data(model->index(0, typeData))).toDouble();
-        for(int i=1; i<model->rowCount(); i++) {
+        int dim=100;
+        int sum=0;
+        for(int i=0; i<model->rowCount(); i++) {
             double value=(model->data(model->index(i, typeData))).toDouble();
-            if(max<value)
-                max=value;
+            sum=sum+value;
         }
         for(int i=0; i<model->rowCount(); i++) {
             double value=(model->data(model->index(i, typeData))).toDouble();
-            qPoint->enqueue(QPointF(dim*i/model->rowCount(), dim-(dim*value/max)));
+            qPoint->enqueue(QPointF(i, (dim*value)/sum));
         }
     }
     if(typeData==2) {
+        int dim=600;
         double max0=(model->data(model->index(0, 0))).toDouble();
         double max1=(model->data(model->index(0, 1))).toDouble();
         for(int i=1; i<model->rowCount(); i++) {
